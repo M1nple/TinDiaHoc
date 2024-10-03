@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <style>
+      #map {
+        height: 480px;
+      }
+
+      img {
+        width: 150px;
+        height: 150px;
+      }
+
+    </style>
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+var map = L.map("map").setView(
+        [21.072250485443167, 105.77387535137285],
+        13
+      );
+
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(map);
+
+      L.marker([21.072250485443167, 105.77387535137285])
+        .addTo(map)
+        .bindPopup('<h1>Đại học mỏ địa chất</h1><img src="logo.jpg">')
+        .openPopup();
+      var points = {
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            properties: {},
+            geometry: {
+              coordinates: [105.77336687290568, 21.072483309976974],
+              type: "Point",
+            },
+          },
+          {
+            type: "Feature",
+            properties: {},
+            geometry: {
+              coordinates: [105.77418858645149, 21.072311179512212],
+              type: "Point",
+            },
+          },
+        ],
+      };
+      var geojsonMarkerOptions = {
+        radius: 8,
+        fillColor: "#ff7800",
+        color: "#000",
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.8,
+      };
+      L.geoJSON(points, {
+        pointToLayer: function (feature, latlng) {
+          return L.circleMarker(latlng, geojsonMarkerOptions);
+        },
+      }).addTo(map);
+    </script>
+  </body>
+</html>
