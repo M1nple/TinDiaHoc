@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Quản lý Cây ATM</title> 
+<link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+<h1>Danh sách Cây ATM</h1>
+
+<!-- Form tìm kiếm ATM theo tên ngân hàng -->
+<form action="/admin" method="GET">
+<input type="text" name="bank_name" placeholder="Tìm kiếm ATM theo tên ngân hàng" >
+<button type="submit">Tìm kiếm</button>
+
+<label>Trạng thái ATM:</label>
+<select name="status">
+    <option value="">-- Lọc theo trạng thái --</option>
+    <% statuses.forEach(function(status) { %>
+        <option value="<%= status.status_id %>" <%= statusFilter == status.status_id ? 'selected' : '' %> >
+            <%= status.status %>
+        </option>
+    <% }) %>
+</select>
+
+</form>
+
+<button ><a href="/add">Thêm ATM mới</a></a></button>
+
+<table>
+<thead>
+    <tr>
+        <th>ID</th>
+        <th>Địa chỉ</th>
+        <th>Vĩ độ</th>
+        <th>Kinh độ</th>
+        <th>Ngân hàng</th>
+        <th>Trạng thái</th>
+        <th>Số tiền còn lại</th>
+        <th>Hành động</th>
+    </tr>
+</thead>
+<tbody>
+    <% atms.forEach(function(atm) { %>
+        <tr>
+            <td><%= atm.atm_id %></td>
+            <td><%= atm.atm_location %></td>
+            <td><%= atm.latitude %></td>
+            <td><%= atm.longitude %></td>
+            <td><%= atm.bank_name %></td>
+            <td><%= atm.status_name %></td>
+            <td><%= atm.cash_amount %></td>
+            <td>                        
+                <button><a href="/edit/<%= atm.atm_id %>">Sửa</a></button>
+                <button><a href="/delete/<%= atm.atm_id %>">Xóa</a></button>                    
+            </td>
+        </tr>
+    <% }) %>
+</tbody>
+</table>
+<button><a href="/logout"> đăng xuất</a></button>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title><%= atm.atm_id ? 'Sửa' : 'Thêm' %> Cây ATM</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <h1><%= atm.atm_id ? 'Sửa' : 'Thêm' %> Cây ATM</h1>
+    <form action ="/edit/<%= atm.atm_id %>" method="POST">
+        <label>Địa chỉ:</label>
+        <input type="text" name="location" value="<%= atm.location || '' %>" required>
+
+        <label>Vĩ độ:</label>
+        <input type="text" name="latitude" value="<%= atm.latitude || '' %>" required>
+
+        <label>Kinh độ:</label>
+        <input type="text" name="longitude" value="<%= atm.longitude || '' %>" required>
+
+        <label>Ngân hàng:</label>
+        <select name="bank_id" required>
+            <option value="">-- Chọn Ngân hàng --</option>
+            <% banks.forEach(function(bank) { %> <!-- Chỉnh sửa từ 'bank' thành 'banks' -->
+                <option value="<%= bank.bank_id %>" <%= atm.bank_id === bank.bank_id ? 'selected' : '' %>>
+                    <%= bank.bank_name %>
+                </option>
+            <% }) %>
+        </select>
+
+        <label>Trạng thái ATM:</label>
+        <select name="status_id" required>
+            <option value="">-- Chọn Trạng thái --</option>
+            <% statuses.forEach(function(status) { %>
+                <option value="<%= status.status_id %>" <%= atm.status_id === status.status_id ? 'selected' : '' %>>
+                    <%= status.status_name %>
+                </option>
+            <% }) %>
+        </select>
+
+
+        <label>Số tiền còn lại:</label>
+        <input type="number" name="cash_amount" value="<%= atm.cash_amount || '' %>" required>
+
+        <button type="submit"><%= atm.atm_id ? 'Cập nhật' : 'Thêm' %></button>
+    </form>
+</body>
+</html>
