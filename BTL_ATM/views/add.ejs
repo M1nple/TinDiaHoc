@@ -3,45 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <title><%= atm.atm_id ? 'Sửa' : 'Thêm' %> Cây ATM</title>
-    <link rel="stylesheet" href="/styles.css">
+     <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous" />
+    <style>
+        /* .card-body{
+            
+        } */
+         /* form{
+            width: 1000px;
+            height: auto;
+         } */
+    </style>
 </head>
 <body>
-    <h1><%= atm.atm_id ? 'Sửa' : 'Thêm' %> Cây ATM</h1> 
-    <form action = '/add', method="POST">
-        <label>Địa chỉ:</label>
-        <input type="text" name="location" value="<%= atm.location || '' %>" required>
+    <section>
+        <div class="container mt-5 pt-5">
+          <div class="row">
+            <div class="col-12 col-sm-100 col-md-100 m-auto">
+              <div class="card border-0 shadow">
+                <div class="card-body">
+                    <h1><%= atm.atm_id ? 'Sửa' : 'Thêm' %> Cây ATM</h1> 
+                    <form action = '/add', method="POST">
+                        <div class="form-group">
+                          <label for="location">Địa chỉ</label>
+                          <input type="text" class="form-control" name="location"  value="<%= atm.location || '' %>" placeholder="Địa chỉ" required>
+                          <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
+                        </div>
+                        <div class="form-group">
+                          <label for="latitude">Vĩ độ</label>
+                          <input type="text" class="form-control" name="latitude" value="<%= atm.latitude || '' %>" placeholder="21.xxxxxx"  required>
+                        </div>
 
-        <label>Vĩ độ:</label>
-        <input type="text" name="latitude" value="<%= atm.latitude || '' %>" required>
+                        <div class="form-group">
+                            <label for="longitude">Kinh đồ</label>
+                            <input type="text" class="form-control" name="longitude" value="<%= atm.longitude || '' %>" placeholder="105.xxxxx"  required>
+                        </div>
+                
+                        <div class="form-group">
+                            <label for="bank_id">Ngân hàng</label>
+                            <select class="form-control" name="bank_id" required>
+                              <option value="">-- Chọn Ngân hàng --</option>
+                              <% banks.forEach(function(bank) { %> 
+                                <option value="<%= bank.bank_id %>" <%= atm.bank_id === bank.bank_id ? 'selected' : '' %>>
+                                    <%= bank.bank_name %>
+                                </option>
+                                <% }) %>
+                            </select>
+                        </div>
+                
+                        <div class="form-group">
+                            <label for="status_id">Trạng thái ATM</label>
+                            <select class="form-control" name="status_id" required>
+                              <option value="">-- Trạng thái ATM --</option>
+                              <% statuses.forEach(function(status) { %> 
+                                <option value="<%= status.status_id %>" <%= atm.status_id === status.status_id ? 'selected' : '' %>>
+                                    <%= status.status_name %>
+                                </option>
+                                <% }) %>
+                            </select>
+                        </div>
 
-        <label>Kinh độ:</label>
-        <input type="text" name="longitude" value="<%= atm.longitude || '' %>" required>
+                        <div class="form-group">
+                            <label for="cash_amount">Số tiền</label>
+                            <input type="text" class="form-control" name="cash_amount" value="<%= atm.cash_amount || '' %>" placeholder="Số tiền"  required>
+                        </div>
 
-        <label>Ngân hàng:</label>
-        <select name="bank_id" required>
-            <option value="">-- Chọn Ngân hàng --</option>
-            <% banks.forEach(function(bank) { %> <!-- Chỉnh sửa từ 'bank' thành 'banks' -->
-                <option value="<%= bank.bank_id %>" <%= atm.bank_id === bank.bank_id ? 'selected' : '' %>>
-                    <%= bank.bank_name %>
-                </option>
-            <% }) %>
-        </select>
+                        <button type="submit" class="btn btn-primary"><%= atm.atm_id ? 'Cập nhật' : 'Thêm' %></button>
+                    </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-        <label>Trạng thái ATM:</label>
-        <select name="status_id" required>
-            <option value="">-- Chọn Trạng thái --</option>
-            <% statuses.forEach(function(status) { %>
-                <option value="<%= status.status_id %>" <%= atm.status_id === status.status_id ? 'selected' : '' %>>
-                    <%= status.status_name %>
-                </option>
-            <% }) %>
-        </select>
-
-
-        <label>Số tiền còn lại:</label>
-        <input type="number" name="cash_amount" value="<%= atm.cash_amount || '' %>" required>
-
-        <button type="submit"><%= atm.atm_id ? 'Cập nhật' : 'Thêm' %></button>
-    </form>
 </body>
 </html>

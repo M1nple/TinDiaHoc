@@ -9,7 +9,7 @@
     <h1><%= atm.atm_id ? 'Sửa' : 'Thêm' %> Cây ATM</h1>
     <form action ="/edit/<%= atm.atm_id %>" method="POST">
         <label>Địa chỉ:</label>
-        <input type="text" name="location" value="<%= atm.location || '' %>" required>
+        <input type="text" name="location" value="<%= atm.atm_location || '' %>" required>
 
         <label>Vĩ độ:</label>
         <input type="text" name="latitude" value="<%= atm.latitude || '' %>" required>

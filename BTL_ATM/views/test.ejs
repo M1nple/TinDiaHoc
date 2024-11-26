@@ -1,0 +1,70 @@
+<script>
+  let map;
+  let markers = [];
+  let userLocation;
+
+  // Khởi tạo bản đồ và thêm điểm ATM
+  function initMap() {
+      // Lấy vị trí hiện tại của người dùng
+      navigator.geolocation.getCurrentPosition((position) => {
+          userLocation = [position.coords.latitude, position.coords.longitude];
+
+          // Khởi tạo bản đồ Leaflet
+          map = L.map('map').setView(userLocation, 14);
+
+          // Thêm lớp bản đồ từ OpenStreetMap
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              maxZoom: 19,
+              attribution: '© OpenStreetMap',
+          }).addTo(map);
+
+          // Thêm marker cho vị trí hiện tại
+          L.marker(userLocation)
+              .addTo(map)
+              .bindPopup("Vị trí của bạn")
+              .openPopup();
+
+          // Thêm các điểm ATM từ cơ sở dữ liệu
+          const atms = <%- JSON.stringify(atms) %>;
+          atms.forEach((atm) => {
+              const atmLocation = [atm.latitude, atm.longitude];
+              const marker = L.marker(atmLocation)
+                  .addTo(map)
+                  .bindPopup(`<strong>${atm.bank_name}</strong><br>${atm.atm_location}`)
+                  .on("click", () => {
+                      showATMInfo(atm);
+                      showDirections(userLocation, atmLocation);
+                  });
+              markers.push(marker);
+          });
+      });
+  }
+
+  // Hiển thị thông tin chi tiết ATM
+  function showATMInfo(atm) {
+      document.getElementById('atm-info').innerHTML = `
+          <h3>Thông tin ATM</h3>
+          <p>Tên ngân hàng: ${atm.bank_name}</p>
+          <p>Địa chỉ: ${atm.location}</p>
+          <p>Trạng thái: ${atm.status_name}</p>
+          <p>Số tiền còn lại: ${atm.cash_amount} VND</p>
+      `;
+  }
+
+  // Tìm kiếm cây ATM theo tên ngân hàng
+  function searchATM() {
+      const searchTerm = document.getElementById('bankSearch').value.toLowerCase();
+      markers.forEach(marker => {
+          const markerContent = marker.getPopup().getContent().toLowerCase();
+          markerContent.includes(searchTerm) ? marker.addTo(map) : map.removeLayer(marker);
+      });
+  }
+
+  // Hiển thị chỉ đường từ vị trí người dùng đến ATM đã chọn
+  function showDirections(start, end) {
+      alert("Hiển thị chỉ đường yêu cầu tích hợp OpenRouteService hoặc Mapbox.");
+  }
+
+  // Khởi tạo bản đồ khi tải trang
+  window.onload = initMap;
+</script>

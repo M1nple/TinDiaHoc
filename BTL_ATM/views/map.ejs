@@ -1,5 +1,119 @@
-<h1>Danh sách cây ATM</h1>
-<% for( let mapName of map_data ) { %> 
-   <!-- map_data lấy từ phần app.get index.js -->
-   <p> <%=mapName.bank_name%> </p>
-<% } %>
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ATM Finder with Leaflet</title>
+
+    <!-- Thêm vào thẻ <head> của user.ejs -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+    <style>
+      #map {
+        height: 500px;
+        width: 100%;
+      }
+      .atm-info {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Tìm kiếm cây ATM</h1>
+
+    <!-- Tìm kiếm ATM -->
+    <input type="text" id="bankSearch" placeholder="Nhập tên ngân hàng" />
+    <button onclick="searchATM()">Tìm kiếm</button>
+
+    <!-- Hiển thị bản đồ -->
+    <div id="map"></div>
+
+    <!-- Thông tin chi tiết cây ATM -->
+    <div id="atm-info" class="atm-info"></div>
+
+    <script>
+      let map;
+      let markers = [];
+      let userLocation;
+
+      // Khởi tạo bản đồ và thêm điểm ATM
+      function initMap() {
+          // Lấy vị trí hiện tại của người dùng
+          navigator.geolocation.getCurrentPosition((position) => {
+              userLocation = [position.coords.latitude, position.coords.longitude];
+
+              // Khởi tạo bản đồ Leaflet
+              map = L.map('map').setView(userLocation, 14);
+
+              // Thêm lớp bản đồ từ OpenStreetMap
+              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                  maxZoom: 19,
+                  attribution: '© OpenStreetMap'
+              }).addTo(map);
+
+              // Thêm marker cho vị trí hiện tại
+              L.marker(userLocation).addTo(map)
+                  .bindPopup("Vị trí của bạn")
+                  .openPopup();
+
+              // Thêm các điểm ATM từ cơ sở dữ liệu
+              // <% atms.forEach(function(atm) { %>
+              //     let atmocation = [<%= atm.latitude %>, <%= atm.longitude %>];
+              //     let marker = L.marker(atmLocation).addTo(map)
+              //         .bindPopup("<strong><%= atm.bank_name %></strong><br><%= atm.location %>")
+              //         .on("click", () => {
+              //             showATMInfo(<%= JSON.stringify(atm) %>);
+              //             showDirections(userLocation, atmLocation);
+              //         });
+              //     markers.push(marker);
+              // <% }); %>
+          });
+      }
+
+      // Hiển thị thông tin chi tiết ATM
+      function showATMInfo(atm) {
+          document.getElementById('atm-info').innerHTML = `
+              <h3>Thông tin ATM</h3>
+              <p>Tên ngân hàng: ${atm.bank_name}</p>
+              <p>Địa chỉ: ${atm.location}</p>
+              <p>Trạng thái: ${atm.status}</p>
+              <p>Số tiền còn lại: ${atm.cash_amount} VND</p>
+          `;
+      }
+
+      // Tìm kiếm cây ATM theo tên ngân hàng
+      function searchATM() {
+          const searchTerm = document.getElementById('bankSearch').value.toLowerCase();
+          markers.forEach(marker => {
+              const markerTitle = marker.getPopup().getContent().toLowerCase();
+              markerTitle.includes(searchTerm) ? marker.addTo(map) : map.removeLayer(marker);
+          });
+      }
+
+      // Hiển thị chỉ đường từ vị trí người dùng đến ATM đã chọn
+      function showDirections(start, end) {
+         function showDirections(start, end) {
+    const apiKey = "YOUR_OPENROUTESERVICE_API_KEY";
+    const url = `https://api.openrouteservice.org/v2/directions/foot-walking?api_key=${apiKey}&start=${start[1]},${start[0]}&end=${end[1]},${end[0]}`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            const route = data.features[0].geometry.coordinates.map(coord => [coord[1], coord[0]]);
+            const routeLine = L.polyline(route, { color: 'blue' }).addTo(map);
+            map.fitBounds(routeLine.getBounds());
+        })
+        .catch(error => console.error('Lỗi khi tính chỉ đường:', error));
+}
+
+          alert("Hiển thị chỉ đường yêu cầu dịch vụ ngoài, như OpenRouteService hoặc Mapbox.");
+      }
+
+      // Khởi tạo bản đồ khi tải trang
+      window.onload = initMap;
+    </script>
+  </body>
+</html>

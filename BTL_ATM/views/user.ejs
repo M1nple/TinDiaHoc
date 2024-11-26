@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>ATM Finder with Leaflet</title>
+
+  <link rel="stylesheet"href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+  <link rel="stylesheet"href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+  <!-- routing-->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+  <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+
+  
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    #map {
+      height: 100vh; /* Chiều cao toàn màn hình */
+      width: 100%;
+    }
+    .map-controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1000;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .map-controls input, .map-controls button {
+      margin: 5px 0;
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    .map-controls button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .map-controls button:hover {
+      background-color: #0056b3;
+    }
+    .atm-info {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      z-index: 1000;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+  </style>
+
+</head>
+<body>
+  <div id="map"></div>
+  
+  <!-- Các nút chức năng bên trong bản đồ -->
+  <div class="map-controls">
+    <input type="text" id="bankSearch" placeholder="Nhập tên ngân hàng" />
+    <button onclick="searchATM()">Tìm kiếm</button>
+    <button onclick="locateUser()">Lấy vị trí của tôi</button>
+  </div>
+
+  <!-- Thông tin chi tiết cây ATM -->
+  <div id="atm-info" class="atm-info" style="display: none;"></div>
+
+  <script>
+    let map, userLocation, markers = [], routingControl;
+   
+
+    // Khởi tạo bản đồ và thêm điểm ATM
+  function initMap() {
+    // Vị trí trung tâm khởi tạo bản đồ (ví dụ: Hà Nội)
+    const defaultCenter = [21.040230660957626, 105.82633248458303];
+
+    // Khởi tạo bản đồ Leaflet
+    map = L.map('map').setView(defaultCenter, 14);
+
+    // Thêm lớp bản đồ từ OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // Thêm các điểm ATM từ cơ sở dữ liệu
+    const atms = <%- JSON.stringify(atms) %>;
+    atms.forEach((atm) => {
+        let atmLocation = [atm.latitude, atm.longitude];
+        let marker = L.marker(atmLocation).addTo(map)
+            .bindPopup(`
+            <h1>Thông tin ATM</h1>
+            <p>Tên ngân hàng: ${atm.bank_name}</p>
+            <p>Địa chỉ: ${atm.atm_location}</p>
+            <p>Trạng thái: ${atm.status_name}</p>
+            <p>Số tiền còn lại: ${atm.cash_amount} VND</p>
+            <button onclick="showDirections(userLocation || defaultCenter, [${atm.latitude}, ${atm.longitude}])()">Chỉ đường</button>
+            <button onclick="map.removeControl(routingControl)">xóa chỉ đường</button>
+
+            `)
+            .bindTooltip(`<strong>${atm.bank_name}</strong>, <br> ${atm.status_name}  `, { permanent: true, direction: "top" }) // Hiển thị tên ngân hàng bên trên marker
+            .on("click", () => {
+                map.removeControl(routingControl)
+            });
+        markers.push(marker);
+    });
+
+    // Cố gắng lấy vị trí hiện tại của người dùng và đặt lại bản đồ
+    navigator.geolocation.getCurrentPosition((position) => {
+        userLocation = [position.coords.latitude, position.coords.longitude];
+        map.setView(userLocation, 14);
+
+        // Thêm marker cho vị trí hiện tại
+        L.marker(userLocation)
+            .addTo(map)
+            .bindPopup("Vị trí của bạn")
+            .openPopup();
+    }, (error) => {
+        console.log("Không thể lấy vị trí hiện tại của người dùng:", error.message);
+    });
+  }
+
+
+
+    // Hiển thị thông tin chi tiết ATM
+  function showATMInfo(atm) {
+        const atmInfoDiv = document.getElementById('atm-info');
+        atmInfoDiv.style.display = "block";
+        atmInfoDiv.innerHTML = `
+            <h4>Thông tin ATM</h4>
+            <p>Tên ngân hàng: ${atm.bank_name}</p>
+            <p>Địa chỉ: ${atm.atm_location}</p>
+            <p>Trạng thái: ${atm.status_name}</p>
+            <p>Số tiền còn lại: ${atm.cash_amount} VND</p>
+        `;
+  }
+
+
+  // Tìm kiếm cây ATM theo tên ngân hàng
+  function searchATM() {
+      const searchTerm = document.getElementById('bankSearch').value.toLowerCase();
+      markers.forEach(marker => {
+          const markerTitle = marker.getPopup().getContent().toLowerCase();
+          markerTitle.includes(searchTerm) ? marker.addTo(map) : map.removeLayer(marker);
+      });
+  }
+
+  // Di chuyển bản đồ đến vị trí của người dùng
+  function locateUser() {
+      if (userLocation) {
+          map.setView(userLocation, 16);
+          L.marker(userLocation)
+              .addTo(map)
+              .bindPopup("Vị trí của bạn")
+              .openPopup();
+      } else {
+          alert("Không thể lấy được vị trí của bạn. Hãy đảm bảo đã cấp quyền truy cập vị trí.");
+      }
+  }
+
+  // Hiển thị chỉ đường từ vị trí người dùng đến ATM đã chọn
+  function showDirections(start, end) {
+    // xóa line chỉ đường nếu có
+    if (routingControl) {
+        map.removeControl(routingControl);
+    }
+    // chỉ đường 
+    routingControl = L.Routing.control({
+            waypoints: [
+                L.latLng(start),
+                L.latLng(end)
+            ],
+            // đổi màu line chỉ 
+            lineOptions: {
+            styles: [{color: 'blue', opacity: 1, weight: 5}]
+   }
+        }).addTo(map);
+  }
+
+    // Khởi tạo bản đồ khi tải trang
+    window.onload = initMap;
+  </script>
+</body>
+</html>

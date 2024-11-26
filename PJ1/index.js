@@ -41,5 +41,5 @@ app.get("/", async (reg, res)=> {
   let sql = "select name from benh_vien"; // select cột muốn lấy from từ database
   let data = await pg.query(sql);
   console.log(data.rows)
-  res.render("map", { map_data:data.rows }) // map  = map.ejs trong views map_data tự tạo
+  res.render("test", { map_data:data.rows }) // map  = map.ejs trong views map_data tự tạo
 })
