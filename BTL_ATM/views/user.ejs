@@ -81,6 +81,7 @@
 
   <script>
     let map, userLocation, markers = [], routingControl;
+    let  tooltips = [];
    
 
     // Khởi tạo bản đồ và thêm điểm ATM
@@ -116,18 +117,25 @@
                 showATMInfo(atm)
                 map.removeControl(routingControl)
             });
-        // const popupContent = `
-        //     <strong>${atm.bank_name}</strong><br>
-        //     Trạng thái: ${atm.status_name}<br>
-        //     Địa chỉ: ${atm.atm_location}
-        // `;
+        markers.push(marker);
 
-        // // Gắn popup vào marker (nhưng không hiển thị ngay lập tức)
-        // marker.bindPopup(popupContent);
+        const tooltipContent = `
+            <strong>${atm.bank_name}</strong><br>
+            Trạng thái: ${atm.status_name}
+        `;
 
+        // Tạo tooltip cho ATM (ban đầu không hiển thị)
+        const tooltip = L.tooltip({
+            permanent: false, // Tooltip không hiển thị liên tục
+            direction: 'top', // Hiển thị phía trên
+            offset: [0, -30], // Dịch tooltip lên trên marker
+        })
+            .setLatLng(atmLocation)
+            .setContent(tooltipContent);
 
-        // markers.push(marker);
-    });
+        tooltips.push({ tooltip, atmLocation }); // Lưu tooltip và vị trí để quản lý
+
+      });
 
     // Cố gắng lấy vị trí hiện tại của người dùng và đặt lại bản đồ
     navigator.geolocation.getCurrentPosition((position) => {
@@ -143,12 +151,27 @@
         console.log("Không thể lấy vị trí hiện tại của người dùng:", error.message);
     });
 
+    // hiện tooltip khi zoom vào gần
+    map.on('zoomend', () => {
+        const currentZoom = map.getZoom();
+        // Hiển thị tooltip khi zoom đủ gần (>= 15)
+        tooltips.forEach(({ tooltip, atmLocation }) => {
+            if (currentZoom >= 15) {
+                if (!tooltip._map) {
+                    map.addLayer(tooltip); // Thêm tooltip vào bản đồ
+                }
+            } else {
+                if (tooltip._map) {
+                    map.removeLayer(tooltip); // Xóa tooltip khỏi bản đồ
+                }
+            }
+        });
+    });
 
-
+    // Tự động hiển thị các tooltip nếu mức zoom đủ từ lúc tải bản đồ
+    map.fire('zoomend');
 
   }
-
-
     // Hiển thị thông tin chi tiết ATM
   function showATMInfo(atm) {
         // const atmInfoDiv = document.getElementById('atm-info');
