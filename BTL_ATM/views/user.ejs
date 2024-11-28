@@ -72,7 +72,8 @@
   <div class="map-controls">
     <input type="text" id="bankSearch" placeholder="Nhập tên ngân hàng" />
     <button onclick="searchATM()">Tìm kiếm</button>
-    <button onclick="locateUser()">Lấy vị trí của tôi</button>
+    <button id="searchATM" onclick="locateUser()">Lấy vị trí của tôi</button>
+    <a href="/login"><i class="fa fa-sign-in"></i></a>
   </div>
 
   <!-- Thông tin chi tiết cây ATM -->
@@ -109,13 +110,23 @@
             <p>Số tiền còn lại: ${atm.cash_amount} VND</p>
             <button onclick="showDirections(userLocation || defaultCenter, [${atm.latitude}, ${atm.longitude}])()">Chỉ đường</button>
             <button onclick="map.removeControl(routingControl)">xóa chỉ đường</button>
-
             `)
-            .bindTooltip(`<strong>${atm.bank_name}</strong>, <br> ${atm.status_name}  `, { permanent: true, direction: "top" }) // Hiển thị tên ngân hàng bên trên marker
+            // .bindTooltip(`<strong>${atm.bank_name}</strong>, <br> ${atm.status_name}  `, { permanent: true, direction: "top" }) // Hiển thị tên ngân hàng bên trên marker
             .on("click", () => {
+                showATMInfo(atm)
                 map.removeControl(routingControl)
             });
-        markers.push(marker);
+        // const popupContent = `
+        //     <strong>${atm.bank_name}</strong><br>
+        //     Trạng thái: ${atm.status_name}<br>
+        //     Địa chỉ: ${atm.atm_location}
+        // `;
+
+        // // Gắn popup vào marker (nhưng không hiển thị ngay lập tức)
+        // marker.bindPopup(popupContent);
+
+
+        // markers.push(marker);
     });
 
     // Cố gắng lấy vị trí hiện tại của người dùng và đặt lại bản đồ
@@ -131,21 +142,26 @@
     }, (error) => {
         console.log("Không thể lấy vị trí hiện tại của người dùng:", error.message);
     });
-  }
 
+
+
+
+  }
 
 
     // Hiển thị thông tin chi tiết ATM
   function showATMInfo(atm) {
-        const atmInfoDiv = document.getElementById('atm-info');
-        atmInfoDiv.style.display = "block";
-        atmInfoDiv.innerHTML = `
+        // const atmInfoDiv = document.getElementById('atm-info');
+        // atmInfoDiv.style.display = "block";
+        // atmInfoDiv.innerHTML = 
+        ATMinfor = `
             <h4>Thông tin ATM</h4>
             <p>Tên ngân hàng: ${atm.bank_name}</p>
             <p>Địa chỉ: ${atm.atm_location}</p>
             <p>Trạng thái: ${atm.status_name}</p>
             <p>Số tiền còn lại: ${atm.cash_amount} VND</p>
-        `;
+        `
+        return ATMinfor;
   }
 
 
@@ -185,10 +201,23 @@
             ],
             // đổi màu line chỉ 
             lineOptions: {
-            styles: [{color: 'blue', opacity: 1, weight: 5}]
+            styles: [{color: 'blue', opacity: 1, weight: 3}]
    }
         }).addTo(map);
   }
+
+
+  // tính khoảng cách
+//   const geolib = require('geolib');
+
+//   const distance = geolib.getDistance(
+//     { latitude: 10.7769, longitude: 106.7009 },
+//     { latitude: 10.762622, longitude: 106.660172 }
+//   );
+
+// // Kết quả trả về khoảng cách tính bằng mét
+// console.log(`Khoảng cách: ${distance / 1000} km`);
+
 
     // Khởi tạo bản đồ khi tải trang
     window.onload = initMap;

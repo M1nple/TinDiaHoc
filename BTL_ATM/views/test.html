@@ -34,6 +34,8 @@
 <body>
     <div id="map"></div>
     <script>
+
+
         const defaultCenter = [21.040230660957626, 105.82633248458303];
         // Khởi tạo bản đồ Leaflet
         var map = L.map('map').setView(defaultCenter, 14);
@@ -42,27 +44,40 @@
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        const defaultlocation =[21.075499194705124, 105.77282108925658]
+        const startlocation =[21.075499194705124, 105.77282108925658]
         const endLocation = [20.879486538638858, 105.81875166090997]
-        var marker = L.marker(defaultlocation) .addTo(map)
-            .bindPopup(testInfo())
+        var marker = L.marker(startlocation) .addTo(map)
+            .bindPopup("hi")
             .on("click", () => {
-                Routing(defaultlocation, endLocation);
+                Routing(startlocation, endLocation)
+                // khoanCach(defaultlocation, endLocation)
                 });
         
 
-    function Routing(start, end){
-        L.Routing.control({
-            waypoints: [
-                L.latLng(start),
-                L.latLng(end)
-            ]
-        }).addTo(map);
-    }
+      function Routing(start, end){
+          L.Routing.control({
+              waypoints: [
+                  L.latLng(start),
+                  L.latLng(end)
+              ]
+          }).addTo(map);
+      }
 
-    function testInfo() {
-        "haha"
-    }
+      // function khoanCach(start, end){
+        const geolib = require('geolib');
+
+        const distance = geolib.getDistance(
+          L.latLng(startlocation),
+          L.latLng(endLocation)
+          // { latitude: 10.7769, longitude: 106.7009 },
+          // { latitude: 10.762622, longitude: 106.660172 }
+        );
+
+        // Kết quả trả về khoảng cách tính bằng mét
+        console.log(`Khoảng cách: ${distance / 1000} km`);
+
+      // }
+
 
     </script>
 </body>

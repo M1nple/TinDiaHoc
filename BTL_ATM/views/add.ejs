@@ -6,13 +6,12 @@
      <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous" />
     <style>
-        /* .card-body{
-            
-        } */
-         /* form{
-            width: 1000px;
-            height: auto;
-         } */
+      button{
+        margin-top: 10px;
+      }
+      label{
+        margin-top: 5px; 
+      }
     </style>
 </head>
 <body>
@@ -22,7 +21,7 @@
             <div class="col-12 col-sm-100 col-md-100 m-auto">
               <div class="card border-0 shadow">
                 <div class="card-body">
-                    <h1><%= atm.atm_id ? 'Sửa' : 'Thêm' %> Cây ATM</h1> 
+                    <h1 class="text-center"><%= atm.atm_id ? 'Sửa' : 'Thêm' %> Cây ATM</h1> 
                     <form action = '/add', method="POST">
                         <div class="form-group">
                           <label for="location">Địa chỉ</label>
@@ -39,6 +38,18 @@
                             <input type="text" class="form-control" name="longitude" value="<%= atm.longitude || '' %>" placeholder="105.xxxxx"  required>
                         </div>
                 
+                        <div>
+                          <label for="district_id">Khu vực</label>
+                          <select class="form-control" name="district_id" required>
+                            <option value="">-- Chọn khu vực --</option>
+                            <% districts.forEach(function(district) { %> 
+                                <option value="<%= district.district_id %>" <%= atm.district_id === district.district_id ? 'selected' : '' %>>
+                                    <%= district.district_name %>
+                                </option>
+                            <% }) %>
+                          </select>
+                        </div>
+
                         <div class="form-group">
                             <label for="bank_id">Ngân hàng</label>
                             <select class="form-control" name="bank_id" required>

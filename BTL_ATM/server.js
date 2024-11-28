@@ -111,7 +111,8 @@ app.get('/add', isAuthenticated, async (req, res) => {
     try {
         const { rows: banks } = await pool.query("SELECT * FROM bank");
         const { rows: statuses } = await pool.query("SELECT * FROM atm_status");
-        res.render('add', { atm: {}, action: '/add', banks, statuses });
+        const {rows: districts } = await pool.query("SELECT * FROM district");
+        res.render('add', { atm: {}, action: '/add', banks, statuses, districts });
     } catch (err) {
         res.status(500).send(err.message);  
     }
