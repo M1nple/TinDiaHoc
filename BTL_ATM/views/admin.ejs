@@ -113,29 +113,32 @@
     </style>
   </head>
   <body>
-    <h1 class="text-center"> <b>Danh sách Cây ATM</b> </h1>
+    <h1 class="text-center"> <a href="/admin"><b>Danh sách Cây ATM</b></a>  </h1>
     <div class="topnav">
       <a href="/logout"><i class="fa fa-sign-out"></i></a>
       <!-- <a href="#contact">Contact</a> -->
       <a class="active" href="/add">Add ATM</a>
       <div class="search-container">
-        <form action="/search" method="GET">
+        <!-- <form action="/search" method="GET">
           <input type="text" placeholder="Search.." name="bank_name" />
           <button type="submit"><i class="fa fa-search"></i></button>
-        </form>
+        </form> -->
+        <form method="GET" action="/search">
+          <input
+              type="text"
+              name="search"
+              placeholder="Nhập tên ngân hàng hoặc khu vực"          />
+          <button type="submit">Tìm kiếm</button>
+      </form>
+      
+      
       </div>
     </div>
-    <!-- Form tìm kiếm ATM theo tên ngân hàng -->
-    <!-- <form action="/search" method="GET">
-    <input type="text" name="bank_name" placeholder="Tìm kiếm ATM theo tên ngân hàng" >
-    <button type="submit">Tìm kiếm</button>
-</form> -->
-
     <!-- <button ><a href="/add">Thêm ATM mới</a></a></button> -->
     <table class="table">
       <thead>
         <tr>
-          <!-- <th>ID</th> -->
+          <th>ID</th>
           <th>Địa chỉ</th>
           <th>Vĩ độ</th>
           <th>Kinh độ</th>
@@ -149,11 +152,11 @@
       <tbody>
         <% atms.forEach(function(atm) { %>
         <tr>
-          <!-- <td><%= atm.atm_id %></td> -->
+          <td><%= atm.atm_id %></td>
           <td><%= atm.atm_location %></td>
           <td><%= atm.latitude %></td>
           <td><%= atm.longitude %></td>
-          <!-- <td><%= atm.district_name %></td> -->
+          <td><%= atm.district_name || 'Không xác định' %></td>
           <td><%= atm.bank_name %></td>
           <td><%= atm.status_name %></td>
           <td><%= atm.cash_amount %></td>

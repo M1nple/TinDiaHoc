@@ -67,12 +67,13 @@ app.get('/admin', async (req, res) => {
         // const { rows } = await pool.query("SELECT * FROM atm");
 
         const atmQuery = `
-            SELECT a.*, b.bank_name, s.status_name
-            FROM ATM a
-            JOIN Bank b ON a.bank_id = b.bank_id
-            JOIN atm_status s ON a.status_id = s.status_id;
+            SELECT a.*, b.bank_name, s.status_name, d.district_name
+            FROM atm a
+            JOIN bank b ON a.bank_id = b.bank_id
+            JOIN atm_status s ON a.status_id = s.status_id
+            LEFT JOIN district d ON a.district_id = d.district_id;
         `;
-        const { rows: atms } = await pool.query(atmQuery);
+const { rows: atms } = await pool.query(atmQuery);
 
         res.render('admin', { atms });
     } catch (err) {
@@ -82,28 +83,92 @@ app.get('/admin', async (req, res) => {
 
 
 //  tìm kiếm theo tên ngân hàng
-app.get('/search', isAuthenticated, async (req, res) => {
+// app.get('/search',isAuthenticated,  async (req, res) => {
 
-    // Lấy giá trị tên ngân hàng từ query string nếu có
-    const bankName = req.query.bank_name || '';  // Nếu không có thì mặc định là chuỗi rỗng
-    // Câu lệnh truy vấn để tìm ATM theo tên ngân hàng
+//     // Lấy giá trị tên ngân hàng từ query string nếu có
+//     const bankName = req.query.bank_name || '';  // Nếu không có thì mặc định là chuỗi rỗng
+//     const districtName = req.query.district_name || ''; // NaN
+//     // Câu lệnh truy vấn để tìm ATM theo tên ngân hàng
+//     const query = `
+//         SELECT atm.*, bank.bank_name, district.district_name
+//         FROM atm
+//         JOIN bank ON atm.bank_id = bank.bank_id
+//         JOIN district ON atm.district_id = district.district_id
+//         WHERE bank.bank_name ILIKE $1 AND district.district_name ILIKE $2
+//     `;
+    
+//     try {
+//         // Thực hiện truy vấn với cả hai tham số
+//         const { rows: atms } = await pool.query(query, [`%${bankName}%`|| `%${districtName}%`]);
+
+//         // Truyền kết quả tìm kiếm vào view cùng với các giá trị lọc
+//         res.render('admin', { atms, bankName, districtName });
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Lỗi kết nối cơ sở dữ liệu');
+//     }
+
+// });
+
+
+
+// app.get('/search', isAuthenticated,  async (req, res) => {
+
+//     // Lấy giá trị tên ngân hàng từ query string nếu có
+//     const bankName = req.query.bank_name || '';  // Nếu không có thì mặc định là chuỗi rỗng
+//     // Câu lệnh truy vấn để tìm ATM theo tên ngân hàng
+//     const query = `
+//         SELECT atm.*, bank.bank_name
+//         FROM atm
+//         JOIN bank ON atm.bank_id = bank.bank_id
+//         WHERE bank.bank_name ILIKE $1
+//     `;
+    
+//     // Thực hiện truy vấn, tìm kiếm tên ngân hàng
+//     pool.query(query, [`%${bankName}%`], (err, result) => {
+//         console.log(result.rows);
+
+//         if (err) {
+//             console.log(err);
+//             return res.status(500).send('Lỗi kết nối cơ sở dữ liệu');
+//         }
+//         // Truyền kết quả tìm kiếm vào view cùng với tên ngân hàng
+//         res.render('admin', { atms: result.rows, bankName: bankName });
+//     });
+// });
+
+
+
+app.get('/search', isAuthenticated, async (req, res) => {
+    // Lấy giá trị từ thanh search
+    const search = req.query.search || ''; // Nếu không có thì mặc định là chuỗi rỗng
+
+    // Câu truy vấn
     const query = `
-        SELECT atm.*, bank.bank_name
+        SELECT atm.*, bank.bank_name, district.district_name, status.status_name
         FROM atm
         JOIN bank ON atm.bank_id = bank.bank_id
-        WHERE bank.bank_name ILIKE $1
+        JOIN district ON atm.district_id = district.district_id
+        JOIN atm_status status ON atm.status_id = status.status_id
+        WHERE ($1 = '' OR bank.bank_name ILIKE $1)
+           OR ($1 = '' OR district.district_name ILIKE $1)
     `;
-    
-    // Thực hiện truy vấn, tìm kiếm tên ngân hàng
-    pool.query(query, [`%${bankName}%`], (err, result) => {
-        if (err) {
-            console.log(err);
-            return res.status(500).send('Lỗi kết nối cơ sở dữ liệu');
-        }
-        // Truyền kết quả tìm kiếm vào view cùng với tên ngân hàng
-        res.render('admin', { atms: result.rows, bankName: bankName });
-    });
+
+    try {
+        // Thực hiện truy vấn
+        const { rows: atms } = await pool.query(query, [`%${search}%`]);
+
+
+        // Truyền dữ liệu vào view admin.ejs
+        res.render('admin', { atms, search });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Lỗi kết nối cơ sở dữ liệu');
+    }
 });
+
+
+
 
 
 // Hiển thị form thêm ATM
@@ -122,13 +187,13 @@ app.get('/add', isAuthenticated, async (req, res) => {
 app.post('/add', isAuthenticated, async (req, res) => {
     const latitude = parseFloat(req.body.latitude);
     const longitude = parseFloat(req.body.longitude);
-    const { location, bank_id, status_id,  cash_amount } = req.body;
+    const { location,district_id, bank_id, status_id,  cash_amount } = req.body;
     try {
         const query = `
-            INSERT INTO ATM (atm_location, latitude, longitude, bank_id, status_id, cash_amount)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO ATM (atm_location, latitude, longitude, district_id, bank_id, status_id, cash_amount)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
         `;
-        await pool.query(query, [location, latitude, longitude, bank_id, status_id, cash_amount]);
+        await pool.query(query, [location, latitude, longitude, bank_id, district_id, status_id, cash_amount]);
         res.redirect('/admin');  // Chuyển hướng đến trang chính (hoặc trang bạn muốn sau khi thêm)
     } catch (err) {
         res.status(500).send(err.message);
@@ -153,7 +218,11 @@ app.get('/edit/:id', isAuthenticated, async (req, res) => {
         // Lấy danh sách các trạng thái
         const statusQuery = 'SELECT * FROM ATM_status';
         const { rows: statuses } = await pool.query(statusQuery);
-        res.render('edit', { atm, banks, statuses });  // Truyền cả danh sách trạng thái vào form
+
+        const districtQuery = 'SELECT * FROM district';
+        const { rows: districts } = await pool.query(districtQuery);
+
+        res.render('edit', { atm, banks, statuses, districts });  // Truyền cả danh sách trạng thái vào form
     } catch (err) {
         res.status(500).send(err.message);
     }
@@ -162,15 +231,15 @@ app.get('/edit/:id', isAuthenticated, async (req, res) => {
 //  xử lý form sửa ATM
 app.post('/edit/:id', isAuthenticated, async (req, res) => {
     const atmId = req.params.id;
-    const { location, bank_id, status_id, cash_amount } = req.body;
+    const { location, district_id, bank_id, status_id, cash_amount } = req.body;
 
     try {
         const updateQuery = `
             UPDATE ATM
-            SET atm_location = $1, bank_id = $2, status_id = $3, cash_amount = $4
-            WHERE atm_id = $5
+            SET atm_location = $1, district_id = $2, bank_id = $3, status_id = $4, cash_amount = $5
+            WHERE atm_id = $6
         `;
-        await pool.query(updateQuery, [location, bank_id, status_id, cash_amount, atmId]);
+        await pool.query(updateQuery, [location, district_id,bank_id, status_id, cash_amount, atmId]);
         res.redirect('/admin'); // Quay lại trang danh sách ATM sau khi cập nhật
     } catch (err) {
         res.status(500).send(err.message);
@@ -198,10 +267,11 @@ app.listen(PORT, () => {
 app.get('/', (req, res) => {
     // Lấy danh sách các ATM từ database
     const atmQuery = `
-        SELECT atm.*, bank.bank_name, atm_status.status_name
+        SELECT atm.*, bank.bank_name, atm_status.status_name, district.district_name
         FROM atm 
         JOIN bank ON atm.bank_id = bank.bank_id
-        JOIN atm_status ON atm.status_id = atm_status.status_id;
+        JOIN atm_status ON atm.status_id = atm_status.status_id
+        JOIN district ON atm.district_id = district.district_id;
     `;
     
     pool.query(atmQuery, (err, atmResult) => {
@@ -211,12 +281,11 @@ app.get('/', (req, res) => {
         }
 
         // Debug: Ghi log danh sách các ATM lấy từ database
-        console.log(atmResult.rows);
+        // console.log(atmResult.rows);
 
         // Truyền danh sách ATM vào view
         res.render('user', {
             atms: atmResult.rows,
-            apiKey: process.env.GOOGLE_MAPS_API_KEY // Sử dụng API key để tích hợp Google Maps
         });
     });
 });

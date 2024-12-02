@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title><%= atm.atm_id ? 'Sửa' : 'Thêm' %> Cây ATM</title>
+    <title>Thêm Cây ATM</title>
      <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous" />
     <style>
@@ -21,7 +21,7 @@
             <div class="col-12 col-sm-100 col-md-100 m-auto">
               <div class="card border-0 shadow">
                 <div class="card-body">
-                    <h1 class="text-center"><%= atm.atm_id ? 'Sửa' : 'Thêm' %> Cây ATM</h1> 
+                    <h1 class="text-center">Thêm Cây ATM</h1> 
                     <form action = '/add', method="POST">
                         <div class="form-group">
                           <label for="location">Địa chỉ</label>
