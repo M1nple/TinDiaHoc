@@ -81,64 +81,6 @@ const { rows: atms } = await pool.query(atmQuery);
     }
 });
 
-
-//  tìm kiếm theo tên ngân hàng
-// app.get('/search',isAuthenticated,  async (req, res) => {
-
-//     // Lấy giá trị tên ngân hàng từ query string nếu có
-//     const bankName = req.query.bank_name || '';  // Nếu không có thì mặc định là chuỗi rỗng
-//     const districtName = req.query.district_name || ''; // NaN
-//     // Câu lệnh truy vấn để tìm ATM theo tên ngân hàng
-//     const query = `
-//         SELECT atm.*, bank.bank_name, district.district_name
-//         FROM atm
-//         JOIN bank ON atm.bank_id = bank.bank_id
-//         JOIN district ON atm.district_id = district.district_id
-//         WHERE bank.bank_name ILIKE $1 AND district.district_name ILIKE $2
-//     `;
-    
-//     try {
-//         // Thực hiện truy vấn với cả hai tham số
-//         const { rows: atms } = await pool.query(query, [`%${bankName}%`|| `%${districtName}%`]);
-
-//         // Truyền kết quả tìm kiếm vào view cùng với các giá trị lọc
-//         res.render('admin', { atms, bankName, districtName });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Lỗi kết nối cơ sở dữ liệu');
-//     }
-
-// });
-
-
-
-// app.get('/search', isAuthenticated,  async (req, res) => {
-
-//     // Lấy giá trị tên ngân hàng từ query string nếu có
-//     const bankName = req.query.bank_name || '';  // Nếu không có thì mặc định là chuỗi rỗng
-//     // Câu lệnh truy vấn để tìm ATM theo tên ngân hàng
-//     const query = `
-//         SELECT atm.*, bank.bank_name
-//         FROM atm
-//         JOIN bank ON atm.bank_id = bank.bank_id
-//         WHERE bank.bank_name ILIKE $1
-//     `;
-    
-//     // Thực hiện truy vấn, tìm kiếm tên ngân hàng
-//     pool.query(query, [`%${bankName}%`], (err, result) => {
-//         console.log(result.rows);
-
-//         if (err) {
-//             console.log(err);
-//             return res.status(500).send('Lỗi kết nối cơ sở dữ liệu');
-//         }
-//         // Truyền kết quả tìm kiếm vào view cùng với tên ngân hàng
-//         res.render('admin', { atms: result.rows, bankName: bankName });
-//     });
-// });
-
-
-
 app.get('/search', isAuthenticated, async (req, res) => {
     // Lấy giá trị từ thanh search
     const search = req.query.search || ''; // Nếu không có thì mặc định là chuỗi rỗng
@@ -166,9 +108,6 @@ app.get('/search', isAuthenticated, async (req, res) => {
         res.status(500).send('Lỗi kết nối cơ sở dữ liệu');
     }
 });
-
-
-
 
 
 // Hiển thị form thêm ATM
@@ -289,6 +228,5 @@ app.get('/', (req, res) => {
         });
     });
 });
-
 
 
