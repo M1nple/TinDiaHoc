@@ -11,6 +11,7 @@
   <!-- routing-->
   <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
   <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+  <script src="https://kit.fontawesome.com/43edd6a16f.js" crossorigin="anonymous"></script>
 
   
 
@@ -23,30 +24,38 @@
     #map {
       height: 100vh; /* Chiều cao toàn màn hình */
       width: 100%;
+      position: relative;
     }
     .map-controls {
       position: absolute;
-      top: 10px;
-      left: 10px;
+      top: 15px;
+      left: 50px;
       z-index: 1000;
       background-color: rgba(255, 255, 255, 0.9);
-      padding: 10px;
-      border-radius: 8px;
+      padding: 5px;
+      border-radius: 100px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      display: flex;
+      width: 18%;
     }
     .map-controls input, .map-controls button {
-      margin: 5px 0;
-      width: 100%;
+      margin: 5px;
+      /* width: 100%; */
       padding: 8px;
       border: 1px solid #ccc;
-      border-radius: 4px;
+      border-radius: 100px;
       box-sizing: border-box;
+    }
+    .map-controls input{
+      width: 85%;
     }
     .map-controls button {
       background-color: #007bff;
       color: white;
       border: none;
       cursor: pointer;
+      width: 35px;
+
     }
     .map-controls button:hover {
       background-color: #0056b3;
@@ -62,6 +71,161 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
+    .leaflet-popup-content button {
+      font-size: large;
+
+    }
+
+
+
+  .locationBtn{
+      position: absolute;
+      bottom: 8px;
+      right: 50px;
+      z-index: 1000;
+      /* background-color: rgba(255, 255, 255, 0.9); */
+      padding: 10px;
+      /* border-radius: 8px; */
+      /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); */
+      /* display: flex; */
+      width: 15px;
+
+  } 
+  
+  .locationBtn button{
+      /* margin: 5px 0; */
+      /* width: 100%; */
+      padding: 8px;
+      /* border: 1px solid #ff0000; */
+      border-radius: 100%;
+      box-sizing: border-box;
+      width: 30px; 
+      height: 30px;
+
+      background-color: #ffffff;
+      color: rgb(3, 3, 3);
+      border: none;
+      cursor: pointer;
+  }
+
+  .locationBtn button:hover{
+    color: white;
+    background-color: #0056b3;
+  }
+
+  .loginBtn{    
+    position: absolute;
+    z-index: 1000;
+    bottom: 8px;
+    left: 16px;
+  }
+  .loginBtn:hover{
+    transform: scale(1.5);
+  }
+
+
+  #result-container {
+     width: 20%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    /* height: 1000px; */
+    display: none; 
+    position: absolute; 
+    top: 100px;
+    bottom: 8px;
+    left: 16px;
+    background: white; 
+    border: 1px solid #ccc; 
+    border-radius: 5px; 
+    padding: 10px; 
+    max-height: 500px; 
+    overflow-y: auto; 
+    z-index: 1000;
+  }
+
+#result-list li {
+    margin-bottom: 5px;
+    font-size: 12px;
+    padding-top: 10px;
+    width: 100%;
+}
+
+#result-list li button {
+    width: 50px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    /* padding: 10px; */
+    text-align: center;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 12px;
+    align-items: center;
+}
+#result-list li #popBtn{
+  width: 100%;
+  text-align: left;
+}
+
+#result-list li button:hover {
+    background: #b1b1b1;
+}
+
+#result-list li #directionsBtn, #result-list li #removeDirectBtn{
+  text-align: center;
+  height: 30px;
+  padding: 0;
+  margin-top: 10px;
+  border-radius: 100px;
+}
+
+#result-list li #directionsBtn{
+  margin-left: 35%;
+}
+#result-list li #removeDirectBtn{
+  margin-left: 20px;
+}
+#result-list li #directionsBtn:hover, #result-list li #removeDirectBtn:hover{
+  color: white;
+  background: rgb(37, 161, 243);
+}
+
+#closeBtn {
+  margin: 0px;
+  padding: 0px;
+  text-align: center; 
+  width: 20px;
+  height: 20px;
+}
+
+.toggleMarkersBtn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  z-index: 1000;
+  padding: 10px;
+  width: 15px;
+}
+
+.toggleMarkersBtn button {
+  padding: 10px;
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
+  border: none;
+  border-radius: 100%;
+  cursor: pointer;
+  font-size: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px; 
+  height: 30px;
+}
+
+.toggleMarkersBtn button:hover {
+  background-color: #0056b3;
+  color: white ;
+}
+
   </style>
 
 </head>
@@ -70,14 +234,43 @@
   
   <!-- Các nút chức năng bên trong bản đồ -->
   <div class="map-controls">
-    <input type="text" id="bankSearch" placeholder="Nhập tên ngân hàng hoặc Quận" />
-    <button onclick="searchATM()">Tìm kiếm</button>
-    <button id="searchATM" onclick="locateUser()">Lấy vị trí của tôi</button>
+      <input 
+          type="text" 
+          id="bankSearch" 
+          placeholder="Tìm kiếm ngân hàng hoặc khu vực"
+      />
+      <button class="PBtn" onclick="searchATM()"><i class="fa-solid fa-magnifying-glass"></i></button>
+      
+  </div>
+
+  <div class="locationBtn">
+    <button id="searchATM" onclick="locateUser()"><i class="fa-solid fa-location-crosshairs"></i></button> 
+  </div>
+  
+  <div class="toggleMarkersBtn">
+    <button id="toggleMarkers" onclick="toggleATMMarkers()">
+      <i id="toggleIcon" class="fas fa-eye-slash"></i>
+    </button>
+  </div>
+
+  <div class="loginBtn">
     <a href="/login"><i class="fa fa-sign-in"></i></a>
   </div>
 
+  <!-- Container của danh sách -->
+  <div id="result-container">
+    <button id="closeBtn" onclick="closeResult()"><i class="fa-solid fa-x"></i></button>  
+    <ul id="result-list" style="list-style: none; padding: 0; margin: 0;">
+          <!-- Kết quả tìm kiếm sẽ hiển thị tại đây -->
+      </ul>
+  </div>
+  
+  <!-- <div id="map" style="height: 500px;"></div> -->
+
   <!-- Thông tin chi tiết cây ATM -->
   <div id="atm-info" class="atm-info" style="display: none;"></div>
+
+
 
   <script>
     let map, userLocation, markers = [], routingControl;
@@ -109,10 +302,11 @@
             <p>Địa chỉ: ${atm.atm_location}</p>
             <p>Trạng thái: ${atm.status_name}</p>
             <p>Số tiền còn lại: ${atm.cash_amount} VND</p>
-            <button onclick="showDirections(userLocation || defaultCenter, [${atm.latitude}, ${atm.longitude}])()">Chỉ đường</button>
-            <button onclick="map.removeControl(routingControl)">xóa chỉ đường</button>
+            <div>
+            <button id="directionsBtn" onclick="showDirections(userLocation || defaultCenter, [${atm.latitude}, ${atm.longitude}])()"><i class="fa-solid fa-diamond-turn-right"></i></button>
+            <button id="removeDirectBtn" onclick="map.removeControl(routingControl)"><i class="fa-solid fa-ban"></i></button>
+            </div>
             `)
-            // .bindTooltip(`<strong>${atm.bank_name}</strong>, <br> ${atm.status_name}  `, { permanent: true, direction: "top" }) // Hiển thị tên ngân hàng bên trên marker
             .on("click", () => {
                 showATMInfo(atm)
                 map.removeControl(routingControl)
@@ -156,7 +350,7 @@
         const currentZoom = map.getZoom();
         // Hiển thị tooltip khi zoom đủ gần (>= 15)
         tooltips.forEach(({ tooltip, atmLocation }) => {
-            if (currentZoom >= 15) {
+            if (currentZoom >= 17) {
                 if (!tooltip._map) {
                     map.addLayer(tooltip); // Thêm tooltip vào bản đồ
                 }
@@ -189,13 +383,71 @@
 
 
   // Tìm kiếm cây ATM theo tên ngân hàng
+  // function searchATM() {
+  //     const searchTerm = document.getElementById('bankSearch').value.toLowerCase();
+  //     markers.forEach(marker => {
+  //         const markerTitle = marker.getPopup().getContent().toLowerCase();
+  //         markerTitle.includes(searchTerm) ? marker.addTo(map) : map.removeLayer(marker);
+  //     });
+  // }
+
+
+  
+  function closeResult() {
+    const resultContainer = document.getElementById('result-container');
+    resultContainer.style.display = 'none';
+}
+
+
   function searchATM() {
-      const searchTerm = document.getElementById('bankSearch').value.toLowerCase();
-      markers.forEach(marker => {
-          const markerTitle = marker.getPopup().getContent().toLowerCase();
-          markerTitle.includes(searchTerm) ? marker.addTo(map) : map.removeLayer(marker);
-      });
-  }
+    const searchTerm = document.getElementById('bankSearch').value.toLowerCase();
+    const resultList = document.getElementById('result-list');
+    const resultContainer = document.getElementById('result-container');
+
+    // Xóa danh sách kết quả cũ
+    resultList.innerHTML = '';
+
+    let hasResults = false;
+    markers.forEach(marker => {
+        const markerTitle = marker.getPopup().getContent().toLowerCase()
+
+        if (markerTitle.includes(searchTerm)) {
+            hasResults = true;
+            marker.addTo(map);
+
+            // Thêm vào danh sách kết quả
+            const listItem = document.createElement('li');
+            // listItem.innerHTML = `<button onclick="zoomToATM(${marker.getLatLng().lat}, ${marker.getLatLng().lng}, '${marker.getPopup().getContent()}
+            //     ${marker.getPopup().getContent()}
+            // </button>`;
+            listItem.innerHTML = `
+    <button id = "popBtn" onclick="zoomToATM(${marker.getLatLng().lat}, ${marker.getLatLng().lng})">
+        ${marker.getPopup().getContent()}
+    </button>
+`;
+
+            resultList.appendChild(listItem);
+        } else {
+            map.removeLayer(marker);
+        }
+    });
+
+    if (hasResults) {
+        resultContainer.style.display = 'block';
+    } else {
+        resultContainer.style.display = 'none';
+    }
+}
+
+
+
+function zoomToATM(lat, lng, content) {
+    map.setView([lat, lng], 16); // Zoom đến vị trí
+    L.popup()
+        .setLatLng([lat, lng])
+        .setContent(content)
+        .openOn(map);
+}
 
   // Di chuyển bản đồ đến vị trí của người dùng
   function locateUser() {
@@ -230,17 +482,26 @@
   }
 
 
-  // tính khoảng cách
-//   const geolib = require('geolib');
+  // ẩn hiện cị trí atm
+  let markersVisible = true; // Trạng thái ban đầu: hiển thị tất cả các marker
 
-//   const distance = geolib.getDistance(
-//     { latitude: 10.7769, longitude: 106.7009 },
-//     { latitude: 10.762622, longitude: 106.660172 }
-//   );
+function toggleATMMarkers() {
+  const toggleIcon = document.getElementById('toggleIcon');
 
-// // Kết quả trả về khoảng cách tính bằng mét
-// console.log(`Khoảng cách: ${distance / 1000} km`);
+  if (markersVisible) {
+    // Ẩn tất cả các marker
+    markers.forEach(marker => map.removeLayer(marker));
+    toggleIcon.classList.remove('fa-eye-slash');
+    toggleIcon.classList.add('fa-eye');
+  } else {
+    // Hiện tất cả các marker
+    markers.forEach(marker => marker.addTo(map));
+    toggleIcon.classList.remove('fa-eye');
+    toggleIcon.classList.add('fa-eye-slash');
+  }
 
+  markersVisible = !markersVisible; // Cập nhật trạng thái
+}
 
     // Khởi tạo bản đồ khi tải trang
     window.onload = initMap;

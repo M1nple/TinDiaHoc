@@ -81,34 +81,26 @@ const { rows: atms } = await pool.query(atmQuery);
     }
 });
 
-app.get('/search', isAuthenticated, async (req, res) => {
-    // Lấy giá trị từ thanh search
-    const search = req.query.search || ''; // Nếu không có thì mặc định là chuỗi rỗng
+app.get('/search', async (req, res) => {
+    const searchTerm = req.query.search || ''; // Lấy giá trị tìm kiếm từ query string
 
-    // Câu truy vấn
     const query = `
         SELECT atm.*, bank.bank_name, district.district_name, status.status_name
         FROM atm
         JOIN bank ON atm.bank_id = bank.bank_id
         JOIN district ON atm.district_id = district.district_id
         JOIN atm_status status ON atm.status_id = status.status_id
-        WHERE ($1 = '' OR bank.bank_name ILIKE $1)
-           OR ($1 = '' OR district.district_name ILIKE $1)
+        WHERE bank.bank_name ILIKE $1 OR district.district_name ILIKE $1
     `;
 
     try {
-        // Thực hiện truy vấn
-        const { rows: atms } = await pool.query(query, [`%${search}%`]);
-
-
-        // Truyền dữ liệu vào view admin.ejs
-        res.render('admin', { atms, search });
+        const { rows: atms } = await pool.query(query, [`%${searchTerm}%`]);
+        res.render('user', { atms, searchTerm }); // Render trang user kèm kết quả
     } catch (err) {
         console.error(err);
         res.status(500).send('Lỗi kết nối cơ sở dữ liệu');
     }
 });
-
 
 // Hiển thị form thêm ATM
 app.get('/add', isAuthenticated, async (req, res) => {
@@ -132,7 +124,7 @@ app.post('/add', isAuthenticated, async (req, res) => {
             INSERT INTO ATM (atm_location, latitude, longitude, district_id, bank_id, status_id, cash_amount)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
         `;
-        await pool.query(query, [location, latitude, longitude, bank_id, district_id, status_id, cash_amount]);
+        await pool.query(query, [location, latitude, longitude, district_id, bank_id, status_id, cash_amount]);
         res.redirect('/admin');  // Chuyển hướng đến trang chính (hoặc trang bạn muốn sau khi thêm)
     } catch (err) {
         res.status(500).send(err.message);
